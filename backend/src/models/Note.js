@@ -3,12 +3,12 @@ import mongoose from "mongoose";
 const noteSchema = new mongoose.Schema(
   {
     title: {
-      types: String,
-      require: true,
+      type: String,
+      required: true,
     },
     content: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   {
