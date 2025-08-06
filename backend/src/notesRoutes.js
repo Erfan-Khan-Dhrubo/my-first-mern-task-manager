@@ -8,6 +8,12 @@ import {
 } from "./notesController.js";
 
 const router = express.Router();
+// express.Router() is like a mini Express app that only handles routes related to notes.
+// You can define:
+// router.get() → for reading data
+// router.post() → for creating data
+// router.put() → for updating data
+// router.delete() → for deleting data
 
 router.get("/", getAllNotes);
 router.get("/:id", getNoteById);
