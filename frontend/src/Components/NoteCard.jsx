@@ -9,7 +9,7 @@ const NoteCard = (Note) => {
   const { _id, title, content, createdAt } = Note.note;
   return (
     <NavLink to={`/details/${_id}`}>
-      <div className="p-4 bg-customBlack rounded-lg border">
+      <div className="p-6 bg-customBlack rounded-lg border border-amber-400">
         <div className="text-lg mb-2">{title}</div>
         <div>{content}</div>
         <div className="flex justify-between items-center mt-4">
