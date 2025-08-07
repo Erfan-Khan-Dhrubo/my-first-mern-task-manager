@@ -1,15 +1,16 @@
 import express from "express"; // This imports the Express framework.
 import notesRoutes from "./notesRoutes.js";
 import { connectDB } from "./config/db.js";
+import cors from "cors";
 import dotenv from "dotenv"; // This lets your app read environment variables from a .env file.
+
+dotenv.config(); // This actually loads the .env file, making process.env.MONGO_URL and others work.
 
 const app = express();
 // This creates an Express app instance.
 // Think of app like the central controller for your server.
 
 const PORT = process.env.PORT || 5001; // It checks if there is a PORT in the environment (like from .env), or uses 5001 as a fallback.
-
-dotenv.config(); // This actually loads the .env file, making process.env.MONGO_URL and others work.
 
 // Middleware:
 // Middleware in Express is a function that runs between receiving a request and sending a response.
@@ -26,6 +27,16 @@ dotenv.config(); // This actually loads the .env file, making process.env.MONGO_
 // The waiter (middleware) checks the order, maybe adds something, or validates it.
 // Then the order goes to the chef (final route handler) to prepare the food (response).
 // Middleware can be many layers of waiters, each doing something.
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
+// Express backend to allow cross-origin requests (CORS) only from: http://localhost:5173
+// import cors from "cors";
+// app.use(cors());
+// This will accept requests from any domain (e.g., localhost, your frontend, someone else's frontend — everything). It's the most open configuration.
 
 app.use(express.json());
 // This middleware lets your server read JSON in the request body.
