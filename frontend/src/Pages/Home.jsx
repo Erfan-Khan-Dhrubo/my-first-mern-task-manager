@@ -29,7 +29,7 @@ const Home = () => {
       {notes.length > 0 ? (
         <div className="grid grid-cols-3  gap-8 p-12">
           {notes.map((note) => (
-            <NoteCard key={note._id} note={note}></NoteCard>
+            <NoteCard key={note._id} note={note} setNotes={setNotes}></NoteCard>
           ))}
         </div>
       ) : (
