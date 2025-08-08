@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import NoteCard from "../Components/NoteCard";
+import NotesNotFound from "../Components/NotesNotFound";
 
 const Home = () => {
   const [notes, setNotes] = useState([]);
@@ -33,7 +34,7 @@ const Home = () => {
           ))}
         </div>
       ) : (
-        <div> You have no notes yet. Start by adding a new note!</div>
+        <NotesNotFound></NotesNotFound>
       )}
     </div>
   );

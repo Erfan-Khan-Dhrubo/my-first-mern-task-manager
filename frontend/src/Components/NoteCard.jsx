@@ -31,9 +31,9 @@ const NoteCard = ({ note, setNotes }) => {
         <div className="flex justify-between items-center mt-4">
           <div>{DataFunc(new Date(createdAt))}</div>
           <div className="flex  gap-2">
-            <button className="p-2 hover:bg-lightBlack">
+            <NavLink to={`/details/${_id}`} className="p-2 hover:bg-lightBlack">
               <FaPenSquare />
-            </button>
+            </NavLink>
             <button
               className="hover:bg-lightBlack p-2"
               onClick={(e) => handleDelete(e, _id)} // passing the id
