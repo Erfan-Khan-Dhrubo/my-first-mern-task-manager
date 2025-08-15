@@ -1,63 +1,96 @@
-import express from "express"; // This imports the Express framework.
+import express from "express";
 import notesRoutes from "./notesRoutes.js";
 import { connectDB } from "./config/db.js";
 import cors from "cors";
-import dotenv from "dotenv"; // This lets your app read environment variables from a .env file.
+import dotenv from "dotenv";
+import http from "http"; // http → Native Node.js HTTP module — needed because Socket.IO works with an HTTP server, not directly with Express.
+import { Server } from "socket.io"; // The Socket.IO server constructor.
 
-dotenv.config(); // This actually loads the .env file, making process.env.MONGO_URL and others work.
+dotenv.config();
 
 const app = express();
-// This creates an Express app instance.
-// Think of app like the central controller for your server.
+const PORT = process.env.PORT || 5001;
 
-const PORT = process.env.PORT || 5001; // It checks if there is a PORT in the environment (like from .env), or uses 5001 as a fallback.
-
-// Middleware:
-// Middleware in Express is a function that runs between receiving a request and sending a response.
-
-// It can:
-// => Modify the request (req)
-// => Modify the response (res)
-// => End the request/response cycle
-// => Or pass control to the next middleware
-
-// 📦 Think of it like this:
-// Imagine a restaurant kitchen:
-// A customer (client) gives an order (request).
-// The waiter (middleware) checks the order, maybe adds something, or validates it.
-// Then the order goes to the chef (final route handler) to prepare the food (response).
-// Middleware can be many layers of waiters, each doing something.
-
+// CORS middleware
 app.use(
   cors({
     origin: "http://localhost:5173",
   })
 );
-// Express backend to allow cross-origin requests (CORS) only from: http://localhost:5173
-// import cors from "cors";
-// app.use(cors());
-// This will accept requests from any domain (e.g., localhost, your frontend, someone else's frontend — everything). It's the most open configuration.
 
 app.use(express.json());
-// This middleware lets your server read JSON in the request body.
-// Without this, you can't do req.body.title or req.body.content.
 
-// Example:
-// Sending JSON data like this:
-//     {
-//        "title": "My Note",
-//        "content": "This is the content"
-//     }
-// Would be parsed and available in your backend like this:
-// const { title, content } = req.body;
-
+// Notes API routes
 app.use("/api/notes", notesRoutes);
-// This is where you tell Express to use your notes routes.
-// Any request that starts with /api/notes will go to notesRoutes.js.
 
+// Normally, in an Express-only app, you’d start your server like this:
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// But Socket.IO doesn’t attach directly to the Express app object —
+// it needs to attach to an actual HTTP server (from Node’s http module).
+const server = http.createServer(app);
+// http.createServer(app) takes your Express app and wraps it in Node’s native HTTP server.
+// Think of it like:
+//    Express handles routes (GET /api/notes)
+//    HTTP server handles network-level requests (TCP connections, HTTP protocol).
+//    This HTTP server will now be the "host" for both:
+//    Express routes
+//    Socket.IO real-time connections
+
+const io = new Server(server, {
+  //new Server(server) → Creates a Socket.IO instance that’s attached to the same HTTP server as your Express routes. This means your REST API and Socket.IO are running on the same port.
+  cors: {
+    origin: "http://localhost:5173", // Only allow connections from your React frontend.
+    methods: ["GET", "POST"], // Allow only these HTTP methods during the Socket.IO handshake phase
+  },
+});
+
+// Socket.IO events
+// Socket.IO events
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  socket.on("join_room", (room) => {
+    socket.join(room);
+    console.log(`User ${socket.id} joined room: ${room}`);
+  });
+
+  // Sender requests connection
+  socket.on("request_connection", ({ room }) => {
+    socket.to(room).emit("request_connection");
+  });
+
+  // Receiver accepts
+  socket.on("accept_connection", ({ room }) => {
+    socket.to(room).emit("accept_connection");
+  });
+
+  // Receiver rejects
+  socket.on("reject_connection", ({ room }) => {
+    socket.to(room).emit("reject_connection");
+  });
+
+  // Messaging after connection accepted
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("send_message", data);
+  });
+
+  // Location sharing events
+  socket.on("share_location", ({ room, location }) => {
+    socket.to(room).emit("receive_location", location);
+  });
+
+  socket.on("stop_location_sharing", ({ room }) => {
+    socket.to(room).emit("location_sharing_stopped");
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User Disconnected: ${socket.id}`);
+  });
+});
+
+// Start DB + server
 connectDB().then(() => {
-  // app.listen() starts the server so it can listen for requests.
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log("Server started on port:", PORT);
   });
 });
