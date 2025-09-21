@@ -53,21 +53,20 @@ export async function getNoteById(req, res) {
 
 export async function createNotes(req, res) {
   try {
-    // Destructure 'title' and 'content' from the request body
-    // Example: if req.body = { title: "Study", content: "Learn MERN" }
-    // then title = "Study", content = "Learn MERN"
     const { title, content } = req.body;
 
-    // Create a new Note instance using the Note model
-    // This creates a MongoDB document (not saved yet)
-    const note = new Note({ title, content });
+    // Count how many notes are currently in the DB
+    const count = await Note.countDocuments();
 
-    // Save the new note to the MongoDB database
-    // This returns the saved document with _id and timestamps
+    // If already 10, delete everything before inserting new one
+    if (count >= 3) {
+      await Note.deleteMany({});
+    }
+
+    // Create a new note
+    const note = new Note({ title, content });
     const saveNote = await note.save();
 
-    // Respond to the client with a 201 status (Created)
-    // and return the saved note data as JSON
     res.status(201).json(saveNote);
   } catch (error) {
     console.error("error in createNotes controller", error);
