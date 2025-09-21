@@ -30,7 +30,7 @@ const PORT = process.env.PORT || 5001; // It checks if there is a PORT in the en
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "*", // http://localhost:5173
   })
 );
 // Express backend to allow cross-origin requests (CORS) only from: http://localhost:5173
