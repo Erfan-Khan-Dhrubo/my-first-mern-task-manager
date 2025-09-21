@@ -1,7 +1,7 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import NoteCard from "../Components/NoteCard";
 import NotesNotFound from "../Components/NotesNotFound";
+import api from "../Utilities/Axios";
 
 const Home = () => {
   const [notes, setNotes] = useState([]);
@@ -11,7 +11,7 @@ const Home = () => {
     // [] means it will run only once when the component first loads (like componentDidMount in class components).
     const fetchNotes = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/api/notes");
+        const res = await api.get("/notes");
         // This sends an HTTP GET request to your backend: http://localhost:5001/api/notes
         // axios.get() returns a promise with the response.
         // await waits for the promise to resolve before moving to the next line.

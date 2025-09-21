@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { FiLoader } from "react-icons/fi";
 import { FaLongArrowAltLeft } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
+import api from "../Utilities/Axios";
 
 const Details = () => {
   const [note, setNote] = useState(null);
@@ -23,7 +24,7 @@ const Details = () => {
   useEffect(() => {
     const fetchNote = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/notes/${id}`); // This sends a GET request to backend.
+        const res = await api.get(`/notes/${id}`); // This sends a GET request to backend.
         setNote(res.data);
       } catch (error) {
         console.log("Error in fetching note", error);
@@ -39,7 +40,7 @@ const Details = () => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
 
     try {
-      await axios.delete(`http://localhost:5001/api/notes/${id}`); // Delete the note
+      await api.delete(`/notes/${id}`); // Delete the note
       navigate("/"); // navigate to home page
     } catch (error) {
       console.log("Error deleting the note:", error);
@@ -56,7 +57,7 @@ const Details = () => {
     setSaving(true);
 
     try {
-      await axios.put(`http://localhost:5001/api/notes/${id}`, note); // Update the note from the backend
+      await api.put(`/notes/${id}`, note); // Update the note from the backend
       navigate("/");
     } catch (error) {
       console.log("Error saving the note:", error);

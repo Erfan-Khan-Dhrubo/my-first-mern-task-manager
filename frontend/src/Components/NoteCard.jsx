@@ -3,6 +3,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import { FaPenSquare } from "react-icons/fa";
 import { NavLink } from "react-router";
 import axios from "axios";
+import api from "../Utilities/Axios";
 
 const NoteCard = ({ note, setNotes }) => {
   const handleDelete = async (e, id) => {
@@ -13,7 +14,7 @@ const NoteCard = ({ note, setNotes }) => {
     // If the user clicks Cancel, the function exits early.
 
     try {
-      await axios.delete(`http://localhost:5001/api/notes/${id}`);
+      await api.delete(`/notes/${id}`);
       // Makes an HTTP DELETE request to your backend to delete the note with the given id.
 
       setNotes((prev) => prev.filter((note) => note._id !== id));
